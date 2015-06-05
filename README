@@ -1,16 +1,9 @@
 
-This is a gradudate course project for CSc 74011 Artificial Intelligence at the Graducate Center, CUNY.
-	Submission notes, Program info, etc.
-	- Created by Shoufu Luo, April 13, 2015  (Stage 1)
-	- Updated on May 1. 2015 for Stage II
+This is a gradudate course project of Artificial Intelligence at the Graducate Center, CUNY.
+	- Created by Shoufu Luo, April 13, 2015 
 
 ----------------------------------------------------------------
-Extra Credit:
 
-Solve Sudoku as CSP: uncomment line 76-79 and recompile
-
-----------------------------------------------------------------
-STAGE 2 SUBMISSION NOTES: 
 
 	1.four uninformed search: BFS (bfs.*), DFS-cutoff (CDFS) (dfs.*), Iterative Deepening Search (IDS) (ids.*)
 	2.four informed search: Gready (astar.h), A* (astar.h), IDA* (ids.*), RBFS (rbfs.*) in progress
