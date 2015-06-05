@@ -1,0 +1,272 @@
+
+This is a gradudate course project for CSc 74011 Artificial Intelligence at the Graducate Center, CUNY.
+	Submission notes, Program info, etc.
+	- Created by Shoufu Luo, April 13, 2015  (Stage 1)
+	- Updated on May 1. 2015 for Stage II
+
+----------------------------------------------------------------
+Extra Credit:
+
+Solve Sudoku as CSP: uncomment line 76-79 and recompile
+
+----------------------------------------------------------------
+STAGE 2 SUBMISSION NOTES: 
+
+	1.four uninformed search: BFS (bfs.*), DFS-cutoff (CDFS) (dfs.*), Iterative Deepening Search (IDS) (ids.*)
+	2.four informed search: Gready (astar.h), A* (astar.h), IDA* (ids.*), RBFS (rbfs.*) in progress
+
+		A little more for DFS, IDS, IDA*: class hierarchy of DFS family 
+
+			DFS (dfs.h)
+		 _________|_______
+		 |		 		 |	
+	DFS-c (dfs.h)	IDS	(ids.h)
+				 		 |
+					IDA* (ids.h)
+
+	3. Statistics: please refer to result.sliding.* for various strategies and in-class presentation
+		e.g. [Statistics] 
+		 		Elapsed time: 24
+				Number of Nodes visited: 8821
+				Maximum size of candidate set: 4784
+				Depth of solution: 27
+		 		Maximum depth searched: 27
+
+	4. Test 
+		$ ./hunter.app [Problem Name] [Algorithm] [Repo]
+			[Repo]: file name for configuration, see examples 
+			- sliding.repo
+						4 4 2 0 4 5 3 10 11 9 8 6 12 7 14 15 1 13
+						[rows] [cols] [configuration data (init state) : rows * cols]
+
+			- missionary.repo
+					15 15 3
+					[No. of Missionaries] [No. of Cannibals] [Boat Capacity] 
+
+		OUTPUT file: results.sliding.bfs.repo
+
+----------------------------------------------------------------
+STAGE I SUBMISSION NOTES:
+
+	1.this doc README contains basic information about the program
+	2.classes required are node.h, problem.h for stage 1 
+		we don't have a 'candidate' class as it is a special case of node)
+	3.three toy problems implemented:
+		sudoku (sudoku.h, sudoku.cc)
+		missionaries and cannibals(missionary.h, missionary.cc)
+		sliding puzzle (sliding.h, sliding.cc)
+	4.one challenging problem: open doors (opendoors.h, opendoors.cc, odmap.h)
+		odmap.h defines the building blocks of the map. A map is a state of this problem.
+	5.four files contain the output of this program for these problems with either DFS or BFS
+		result.sudoku.bfs
+		result.sliding.bfs
+		result.openddors.dfs
+		result.missionary.dfs
+	6. The output of generateSuccessors for each problem in the following file
+		test/results.stage1.txt 
+		(it also includes some unit tests for this program)
+
+	7. Development Info
+
+		Programming Langage: C++
+		Compiler: g++ (Apple LLVM version 6) with c++11 enabled 
+		Environment: Mac OS X 10.9.5, vim 7.0
+		Library used: c++ STL, gtest-1.7.0 (https://code.google.com/p/googletest/)
+
+			by	Shoufu Luo
+----------------------------------------------------------------
+
+============
+General
+============
+
+1. Compile and Run: this source code comes with a Makefile supposely works for *nix environment, 
+	however it has been only tested in a Mac OS X 10.9.6 machine
+	
+	$ cd GSE
+	$ make clean
+	$ make
+	$ ./hunter.app [Problem Name] [Algorithm]
+		e.g. ./hunter.app missionary dfs
+
+		+ Problem: missionary/sudoku/sliding/opendoors
+			- sliding: Sliding puzzle 
+			- sudoku: 4x4 sudoku
+			- missionary: Missionaries & Cannibals 
+	.		- opendoors: Open Doors 
+
+		+ Support Algorithms (Strategies): more coming soon ...
+			- BFS
+			- DFS
+
+	Once find a solution, the path will be printed backward, the leaves first then the parent until the root
+	-------------------------
+	The test package needs Google test framework (gtest-1.7.0). 
+		- Download gtest-1.7.0 from https://code.google.com/p/googletest/ and extract in GSE/test
+	It contains a number of critical test cases for various problems, classes and functions
+
+	$ cd GSE
+	$ make clean; make
+	$ cd test
+	$ make clean; make
+	$ ./htest
+
+	(Stage 1: the unit test package include generateSuccessors() for each problem)
+
+
+2. A typical way to use Engine is following (See main.cc for more examples)
+
+	a. Create a problem (please refer to the constructor of a specific problem).
+
+		(1) A sliding 8-puzzle (or any rectangular size of sliding puzzle)
+
+			int initState[] = { 4, 2, 3, 8, 1, 0, 5, 7, 6} // initial state (problem-dependent)
+			Sliding prob(initState, 3, 3);	 // create a problem
+
+		(2)	Missionaries and Cannibals
+
+			Missionary prob(3, 3, 2); // 3 missionaries; 3 cannibals and boat has 2 capacity
+
+		(3) Sudoku Problem (4x4)
+		
+			int initState[] = { 0, 3, 0, 1, 0, 1, 0, 4, 3, 4, 1, 2, 0, 0, 4, 0 };
+			Sudoku	prob(initState, 4);
+
+		(4) Open Doors:
+
+			Map m1 = Map::loadMap("./odmap3.txt"); //load a map
+			OpenDoors od(m1);
+
+	b. once the problm is instantiated, the rest is problem-independent
+
+		Problem *p = (Problem *) &prob; 	// problem handler
+
+		Engine e; 						// create a engine instance
+		Stat	st;						// create a stat instance 
+
+		e.search(p, alg, st);			// call search, with problem and algorithm name
+
+		if (st.depth_of_solution != 0)
+		{
+			e.print_path(st.terminal); // print solution
+		}
+		st.print();
+
+4. So far, the program may not handle all invalid input properly. we would continue to improve the
+validation in next stages ...
+
+============
+Code Structure
+============
+1. The project intends to develop a modular generic search engineer to solve pathfinding problems. for example, 8-puzzle game, missionaries & cannibals and so on, using different strategies, such as BFS, A*, IDA etc.This source code includes 
+
+									 |- Duplication detection
+									 |
+				Search Engine	-----|- Search Tree <- Node 
+					(engine.h)						  (node.h)
+					  |									|- State (associated state)
+					  | 								|- Action (action generate this state)
+		---------------------------------				|- Stats (depth,cost,distance)
+		|                    			|				|- Parent
+	Problem (State, Action)		 	Strategy
+	(problem.h)					  (strategy.h)
+		|- Name							|- Name
+		|- isGoalState(Node)			|- insert(Node)
+		|- getInitState()				|- remove()
+		|- nextState(State,Action)		|- imporve (moved to engine)
+		|- actionInterator
+	
+	1. Engine constructs the search tree by consulting Problem class how to generate
+		successor nodes through interface: nextState(state, action). The root node of the tree
+		is associated to the initial state of the problem: getInitState()
+	
+	2. Engine choose candidates to explore by consulting Strategy class which ones to explore first;
+		Engine tests each candidate for a goal state by consulting Problem through isGoalState()
+	
+	3. Engine only knows how to interact with a problem through four intefaces with two major
+		components: state and action. Thus, all problems are required to implement these interfaces
+	
+	4. Engine only knows to how to interact with a strategy (an algorithm) through interfaces
+		insert(Node) and remove(). Thus, all strategies are required to implement these interfaces 
+	
+	5. Each problem defines their own states and actions;
+		Each algorithm has their own prioritizing strategy (insert, remove)
+
+2. Add a new problem by implementing the problem-specific State/Action/Problem inheriting from those in problem.h
+	
+3. Add a new strategy by inheriting the Strategy class and add an instance in the strategy base through strategy.cc 
+	
+============
+problem-specific
+============
+
+	1. Output of Open Doors Map (a visual version of this map test/odmap3.png)
+
+			~1 0 0 1: ~ stands for a switch (off) facility in this cell. 1 stands for Wall and 0 stands for empty edge and robot will bump back if walk to a wall edge, but it can walk through empty edge. The order is clockwise: North, East, South, West.  
+
+			1 0 0 1: NESW -> Wall Emtpy Empty Wall
+			. : the current location of the robot
+			x : the exiting cell
+			= : a double door (closed)
+			' : a double door (opened) 
+			- : a single door (closed)
+			/ : a single door (left opened)
+			\ : a single door (right opened)
+			~ : switch (off)
+			` : switch (on)
+			@ : a hole (disabled)
+			o : a hole (enabled)
+			
+			e.g.
+			
+                    ~1 0 0 1   1 0 1 0   1 0 0 0   1 0 1 0   1 0-0 0   1 0 1 0   1 1 0 0  
+                     0 1 0 1             0 1 0 1             0 1 0 1            x0 1 0 1  
+ 1 0 0 1   1 0-0 0   0-0 0 0   1 0 1 0   0 0-0 0   1 0=1 0   0-0 1 0   1 0 1 0   0 1 1 0  
+ 0-0 0 1  @0 0 0 0   0-1 0 0             0=1 0 1                                          
+ 0 0 1 1   0 0 1 0   0 0 1 0   1 0 1 0  .0 1 1 0                                          
+
+				after some steps:
+
+                    ~1 0 0 1   1 0 1 0   1 0 0 0   1 0 1 0   1 0-0 0   1 0 1 0   1 1 0 0  
+                     0 1 0 1             0 1 0 1             0 1 0 1            x0 1 0 1  
+ 1 0 0 1   1 0-0 0   0\0 0 0   1 0 1 0   0 0-0 0   1 0=1 0   0-0 1 0   1 0 1 0   0 1 1 0  
+ 0-0 0 1  @0 0 0 0   0/1 0 0             0'1 0 1                                          
+ 0 0 1 1  .0 0 1 0   0 0 1 0   1 0 1 0   0 1 1 0                                          
+
+
+	2. Input of Open Doors: map in a file, e.g. odmap3.txt (see the visual version test/odmap3.png)
+
+	We can load a map from a map conf file with a pre-defined format 
+	 
+	  line starts with '#': comment
+	  line starts with 'c': a cell with [row] [col] and four edges: 1 - wall, 0 - empty
+	  line starts with 'd': a door with [row] [col] [s/d] [NESW] [R/L] [Swtch]
+	  line starts with 'f': a facility with [row] [col] [S/H] [NESW] [Switch] [status]
+	 
+	 e.g. 
+	 --------------------
+	 # start/end 
+	 r 5 9 4 4 1 8
+ 	 # layout
+	 c 0 2 1 0 0 1
+	 ...
+	 c 0 2 1 0 0 1
+	 c 0 3 1 0 1 0
+	 c 0 4 1 0 0 0
+ 	 # [door] [row] [col] [s/d] [NESW] [R/L] [Swtch]
+	 #  door   row   col   type direction opento switch
+	 # Direction: N - 1  E - 2  S - 3  W - 4  Not Applied - 0
+	 # opento (inside the cell): r(1) - right  l (2) - left  0 - not applied
+	 # switch: 0 - auto  # - switch number
+	 d 0 6 1 2 1 0
+	 d 2 1 1 2 1 0
+	 d 2 2 1 2 2 0
+	 d 2 4 1 2 2 0
+	 # facilities
+	 # [f] [row] [col] [S/H] [NESW] [Switch No] [status]
+	 # S (1): switch  H: Hole (2)
+	 f 0 2 1 3 1 0
+	 f 3 1 2 0 1 0
+	 
+
+- Shoufu Luo, April. 13, 2015

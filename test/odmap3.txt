@@ -1,0 +1,57 @@
+# start/end
+r 5 9 4 4 1 8
+# layout
+c 0 2 1 0 0 1
+c 0 3 1 0 1 0
+c 0 4 1 0 0 0
+c 0 5 1 0 1 0
+c 0 6 1 0 0 0
+c 0 7 1 0 1 0
+c 0 8 1 1 0 0
+c 1 2 0 1 0 1
+c 1 4 0 1 0 1
+c 1 6 0 1 0 1
+c 1 8 0 1 0 1
+c 2 0 1 0 0 1
+c 2 1 1 0 0 0
+c 2 2 0 0 0 0
+c 2 3 1 0 1 0
+c 2 4 0 0 0 0
+c 2 5 1 0 1 0
+c 2 6 0 0 1 0
+c 2 7 1 0 1 0
+c 2 8 0 1 1 0
+c 3 0 0 0 0 1
+c 3 1 0 0 0 0
+c 3 2 0 1 0 0
+c 3 4 0 1 0 1
+c 4 0 0 0 1 1
+c 4 1 0 0 1 0
+c 4 2 0 0 1 0
+c 4 3 1 0 1 0
+c 4 4 0 1 1 0
+
+# [door] [row] [col] [s/d] [NESW] [R/L] [Auto]
+#  door   row   col   type direction opento switch
+# Direction: N - 1  E - 2  S - 3  W - 4  Not Applied - 0
+# opento (inside the cell): r(1) - right  l (2) - left  0 - not applied
+# switch: 0 - auto  # - switch number
+d 0 6 1 2 1 0
+d 2 1 1 2 1 0
+d 2 2 1 1 1 0
+d 2 4 1 2 2 0
+d 2 5 2 2 0 1
+d 2 6 1 1 1 0
+d 3 0 1 1 2 0
+d 3 2 1 1 2 0
+d 3 4 2 1 0 0
+
+# facilities
+# [f] [row] [col] [S/H] [NESW] [Switch No] [status]
+# S (1): switch  H: Hole (2)
+f 0 2 1 1 1 0
+f 3 1 2 0 1 0
+
+
+
+
